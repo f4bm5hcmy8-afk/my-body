@@ -313,4 +313,135 @@ window.open("https://chatgpt.com/","_blank");
 })();
 </script>
 
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const foods=[
+[['白米','ご飯','ごはん','米','ライス'],156,2.5,.3,37.1],
+[['鶏むね肉','胸肉','鶏胸肉'],105,23.3,1.9,0],
+[['鶏もも肉'],190,16.6,14.2,0],
+[['卵','たまご','玉子'],142,12.2,10.2,.4],
+[['バナナ'],93,1.1,.2,22.5],
+[['食パン'],248,8.9,4.1,46.4],
+[['納豆'],184,16.5,10,12.1],
+[['木綿豆腐','豆腐'],73,7,4.9,1.5],
+[['牛乳'],61,3.3,3.8,4.8],
+[['ブロッコリー'],37,5.4,.6,6.6],
+[['じゃがいも'],59,1.8,.1,17.3],
+[['鮭','サケ'],124,22.3,4.1,.1],
+[['ハラミ','牛ハラミ'],301,14.8,27.3,.3],
+[['りんご'],53,.1,.2,15.5]
+];
+const round=n=>Math.round(n*10)/10;
+
+function calculate(){
+ const raw=$('foodname')?.value||'';
+ const m=raw.match(/(\d+(?:\.\d+)?)\s*(?:g|ｇ|グラム)/i);
+ const grams=m?Number(m[1]):null;
+ const name=raw.replace(/\d+(?:\.\d+)?\s*(?:g|ｇ|グラム)/gi,'').replace(/[\s　]/g,'').toLowerCase();
+ const item=foods.find(x=>x[0].some(a=>a.toLowerCase()===name));
+ const info=$('autoFoodInfo');
+ if(!item||!grams||grams<=0||grams>5000){
+  info.textContent='食品名と重量（例：米100g）を入力してください。';
+  return;
+ }
+ const vals=item.slice(1).map(v=>round(v*grams/100));
+ ['energy','protein','fat','carb'].forEach((id,i)=>$(id).value=vals[i]);
+ info.textContent=`概算：${vals[0]}kcal / P${vals[1]}g F${vals[2]}g C${vals[3]}g。確認して登録してください。`;
+}
+const input=$('foodname');
+if(input){
+ const info=document.createElement('p');
+ info.id='autoFoodInfo';
+ info.style.cssText='font-size:12px;color:#b9c9e6';
+ info.textContent='例：米100g、卵50g、鶏むね肉150g';
+ input.insertAdjacentElement('afterend',info);
+ input.addEventListener('input',calculate);
+}
+const page=$('food');
+if(!page)return;
+
+const panel=document.createElement('div');
+panel.className='card';
+panel.innerHTML=`
+<h2>写真AI推定（試験機能）</h2>
+<p><small>初回は約90MBのAIモデルを読み込みます。料理名の候補を表示し、栄養成分は仮の重量から概算します。</small></p>
+<input id="aiFoodPhoto" type="file" accept="image/*">
+<p id="aiFoodStatus">写真を選んでください。</p>
+<div id="aiFoodChoices"></div>`;
+page.insertBefore(panel,page.firstChild);
+
+const recipes={
+fried_rice:['チャーハン',180,4.5,5.5,28],
+omelette:['卵',142,12.2,10.2,.4],
+grilled_salmon:['鮭',124,22.3,4.1,.1],
+ramen:['ラーメン',95,4,3,13],
+pizza:['ピザ',250,11,10,29],
+hamburger:['ハンバーガー',260,13,11,29],
+sushi:['寿司',150,5,1,31],
+gyoza:['餃子',200,7,9,23],
+steak:['牛ステーキ',220,20,15,0],
+spaghetti_bolognese:['ミートソースパスタ',150,5,5,22],
+spaghetti_carbonara:['カルボナーラ',200,7,11,18],
+fried_chicken:['唐揚げ',280,16,18,12],
+chicken_curry:['チキンカレー',130,6,7,10],
+pancakes:['パンケーキ',230,6,6,40],
+caesar_salad:['シーザーサラダ',100,5,8,4],
+miso_soup:['味噌汁',35,2,1,4]
+};
+let classifier;
+
+$('aiFoodPhoto').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];
+ if(!file)return;
+ const status=$('aiFoodStatus');
+ const choices=$('aiFoodChoices');
+ choices.replaceChildren();
+ status.textContent='画像AIを読み込み中。初回は通信量と時間がかかります。';
+ let url;
+ try{
+  if(!classifier){
+   const mod=await import(
+    'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3'
+   );
+   classifier=await mod.pipeline(
+    'image-classification',
+    'onnx-community/swin-finetuned-food101-ONNX',
+    {dtype:'q8'}
+   );
+  }
+  url=URL.createObjectURL(file);
+  status.textContent='写真を解析中…';
+  const result=await classifier(url,{top_k:3});
+  status.textContent='料理の候補を選び、重量と数値を確認してね。';
+  for(const item of result){
+   const key=item.label.toLowerCase().replaceAll(' ','_');
+   const recipe=recipes[key];
+   const btn=document.createElement('button');
+   btn.style.margin='4px';
+   btn.textContent=(recipe?recipe[0]:item.label.replaceAll('_',' '))+
+     ' ('+Math.round(item.score*100)+'%)';
+   btn.onclick=()=>{
+    $('foodname').value=recipe?recipe[0]+' 100g':item.label+' 100g';
+    if(recipe){
+     ['energy','protein','fat','carb'].forEach((id,i)=>{
+      $(id).value=recipe[i+1];
+     });
+     $('autoFoodInfo').textContent='写真の料理候補を100gと仮定した概算です。量・調理法に合わせて数値を修正してください。';
+    }else{
+     $('autoFoodInfo').textContent='この料理は栄養データ未登録です。数値を手入力してください。';
+    }
+   };
+   choices.appendChild(btn);
+  }
+ }catch(err){
+  status.textContent='この端末では写真AIを起動できませんでした。文字入力での自動計算は利用できます。';
+  console.error(err);
+ }finally{
+  if(url)URL.revokeObjectURL(url);
+ }
+});
+})();
+</script>
+
 </html>
