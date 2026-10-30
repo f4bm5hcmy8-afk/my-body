@@ -8,39 +8,56 @@
 <title>MY BODY 2.0</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0c1424;color:#f2f6ff;font:15px -apple-system,sans-serif;padding:18px 15px 95px}
+body{margin:0;background:#0c1424;color:#f2f6ff;font:15px -apple-system,BlinkMacSystemFont,sans-serif;padding:18px 15px 105px;max-width:760px;margin-inline:auto}
 h1{font-size:30px;margin:8px 0}
 h2{font-size:20px}
+h3{font-size:17px}
 small,.muted{color:#a9b9d1}
 .card{background:#1a2940;border:1px solid #344561;border-radius:16px;padding:16px;margin:13px 0}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grid .card{margin:0}
-.big{font-size:30px;font-weight:bold}
-button{border:0;border-radius:10px;padding:12px;background:#8aafff;color:#101827;font-weight:bold}
+.big{font-size:29px;font-weight:bold}
+button{border:0;border-radius:10px;padding:12px;background:#8aafff;color:#101827;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5}
 .wide{width:100%;margin-top:10px}
+.secondary{background:#385680;color:white}
 input,textarea,select{background:#101b30;color:white;border:1px solid #4c6081;border-radius:10px;padding:12px;width:100%;font-size:16px;margin:6px 0}
-input[type=checkbox]{width:22px;height:22px;margin:0}
-.check{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #344561}
+input[type=checkbox]{width:22px;height:22px;margin:0;flex-shrink:0}
+.check{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #344561}
 .page{display:none}
 .page.on{display:block}
-nav{position:fixed;bottom:0;left:0;right:0;background:#17253c;display:flex;justify-content:space-around;padding:12px 2px 24px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#17253c;display:flex;justify-content:space-around;padding:12px 2px 24px;z-index:10}
 nav button{background:transparent;color:#b9c9df;font-size:12px;padding:9px}
 nav button.on{background:#385680;color:white}
 .bar{background:#36445d;height:10px;border-radius:8px;overflow:hidden}
 #fill{height:100%;background:#8aafff;width:0}
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.day{background:#2b3d56;text-align:center;padding:10px 0;border-radius:8px;font-size:12px}
-.done{background:#32785c}
-.graph{height:130px;display:flex;align-items:end;gap:6px}
-.graph div{flex:1;background:#8aafff;border-radius:5px 5px 0 0}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.item{padding:10px 0;border-bottom:1px solid #344561}
+.day{background:#2b3d56;text-align:center;padding:8px 2px;border-radius:8px;font-size:12px;white-space:pre-line;min-height:48px}
+.day.done{background:#32785c}
+.day.current{outline:2px solid #8aafff}
+.item{padding:12px 0;border-bottom:1px solid #344561}
+.status{padding:12px;border-radius:10px;background:#283b55;border:1px solid #59718e;margin:10px 0;overflow-wrap:anywhere}
+.status.success{background:#204c44;border-color:#7bd8aa}
+.status.error{background:#56303a;border-color:#f7a7ad}
+.field{display:block;margin-top:10px}
+.exercise{padding:12px 0;border-bottom:1px solid #344561}
+.sets{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.setbox{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.setbox input[type=number]{width:90px}
+.timer{font-size:48px;font-weight:bold;text-align:center;font-variant-numeric:tabular-nums;margin:15px 0}
+.help{font-size:12px;color:#a9b9d1}
+svg{width:100%;height:auto}
 </style>
 </head>
 <body>
+
 <small>PERSONAL TRAINING TRACKER</small>
 <h1>MY BODY 2.0</h1>
 <small id="today"></small>
+
+<div id="storageStatus" class="status" role="status">
+保存環境を確認中
+</div>
 
 <section class="page on" id="home">
 <h2>今日のトレーニング</h2>
@@ -52,66 +69,149 @@ nav button.on{background:#385680;color:white}
 <div class="bar"><div id="fill"></div></div>
 <button class="wide" onclick="tab('train')">トレーニングを始める</button>
 </div>
+
 <div class="grid">
-<div class="card">今週の運動日数<div class="big" id="weekly">0</div></div>
-<div class="card">今月の運動日数<div class="big" id="monthly">0</div></div>
+<div class="card">今週の活動日数<div class="big" id="weekly">0</div></div>
+<div class="card">今月の活動日数<div class="big" id="monthly">0</div></div>
 </div>
+
 <div class="card">
-<b>目標</b>
-<p>腹筋が見える引き締まった体を目指す。</p>
-<small>器具なし・室内トレーニング。食事制限なし。毎日運動または回復を行う。</small>
+<h3>目標</h3>
+<p>筋肉を維持・成長させながら体脂肪を減らし、腹筋が見える体を目指す。</p>
+<small>器具なし・自宅トレーニング。回復日も大切にする。</small>
+</div>
+
+<div class="card">
+<h3>週間スケジュール</h3>
+<p id="weekType"></p>
+<div id="schedule"></div>
+<small>基準週：2026年10月26日（月）。A→B→Aから開始して隔週で切り替え。</small>
 </div>
 </section>
 
 <section class="page" id="train">
-<h2>今日のメニュー</h2>
-<div class="card" id="exercises"></div>
+<h2>トレーニング記録</h2>
+
 <div class="card">
-<b>トレーニングメモ</b>
-<textarea id="memo" placeholder="回数・セット数・体調など"></textarea>
+<label class="field">記録する日付
+<input type="date" id="recordDate">
+</label>
+<h2 id="selectedPlan"></h2>
+<div id="exercises"></div>
+
+<div id="hiitPanel" style="display:none">
+<h3>縄跳びHIITタイマー</h3>
+<p id="timerStage">開始前</p>
+<div class="timer" id="timerClock">07:50</div>
+<p class="muted">50秒運動＋セット間10秒休憩。最後の休憩なし。</p>
+<button onclick="startTimer()">開始・再開</button>
+<button class="secondary" onclick="pauseTimer()">一時停止</button>
+<button class="secondary" onclick="resetTimer()">リセット</button>
+</div>
+
+<label id="restOption" class="check" style="display:none">
+<input id="fullRest" type="checkbox" onchange="changeRest()">
+疲労が強いため完全休養にする
+</label>
+</div>
+
+<div class="card">
+<h3>身体の変化</h3>
+<div class="grid">
+<label class="field">体重 kg
+<input id="weight" type="number" min="0" step="0.1" placeholder="未記録">
+</label>
+<label class="field">ウエスト cm
+<input id="waist" type="number" min="0" step="0.1" placeholder="未記録">
+</label>
+</div>
+</div>
+
+<div class="card">
+<h3>回復・体調</h3>
+<div class="grid">
+<label class="field">睡眠時間
+<input id="sleepHours" type="number" min="0" max="24" step="0.1" placeholder="未記録">
+</label>
+<label class="field">疲労感 0〜10
+<input id="fatigue" type="number" min="0" max="10" step="1" placeholder="未記録">
+</label>
+</div>
+
+<label class="field">トレーニングメモ
+<textarea id="memo" placeholder="実際の回数、体調、筋肉痛など"></textarea>
+</label>
+
+<label class="field">きつさ
 <select id="effort">
-<option value="">きつさを選択</option>
+<option value="">未記録</option>
 <option>楽</option>
 <option>普通</option>
 <option>きつい</option>
 </select>
-<button class="wide" onclick="complete()">今日の活動を記録</button>
-<p id="message"></p>
+</label>
+
+<label class="check">
+<input id="finished" type="checkbox">
+この日の運動・回復を完了した
+</label>
+
+<button class="wide" onclick="saveRecord()">この日の記録を保存</button>
+<p id="message" role="status"></p>
 </div>
 </section>
 
 <section class="page" id="records">
 <h2>成長記録</h2>
+
 <div class="card">
-<b>今月のカレンダー</b>
+<h3>今月のカレンダー</h3>
 <div class="calendar" id="calendar"></div>
-<p><small>緑色＝運動・回復を記録した日</small></p>
+<p class="help">緑色＝完了。日付を押すと編集できます。</p>
 </div>
+
 <div class="card">
-<b>直近7日間の達成項目数</b>
-<div class="graph" id="graph"></div>
+<h3>週間・月間の運動達成率</h3>
+<div id="analysis"></div>
 </div>
+
 <div class="card">
-<b>活動履歴</b>
+<h3>体重の成長グラフ</h3>
+<div id="weightChart"></div>
+</div>
+
+<div class="card">
+<h3>筋力の成長グラフ</h3>
+<select id="strengthSelect" onchange="drawStrength()"></select>
+<div id="strengthChart"></div>
+</div>
+
+<div class="card">
+<h3>活動履歴</h3>
 <div id="history"></div>
 </div>
+
 <div class="card">
-<b>バックアップ</b>
-<button class="wide" onclick="backup()">記録をコピー</button>
-<textarea id="backupdata" placeholder="復元データを貼り付け"></textarea>
-<button class="wide" onclick="restore()">記録を復元</button>
+<h3>バックアップ・復元</h3>
+<button class="wide" onclick="backup()">JSONバックアップを保存</button>
+<button class="wide secondary" onclick="exportCSV()">CSV出力</button>
+<button class="wide secondary" onclick="copyBackup()">JSONを表示・コピー</button>
+<textarea id="backupdata" rows="6" placeholder="復元用JSONを貼り付け"></textarea>
+<input id="restoreFile" type="file" accept=".json,application/json">
+<button class="wide" onclick="restore()">既存記録を保護して復元</button>
+<p id="restoreMessage"></p>
+<small>同じ日付が存在する場合、現在の記録を優先します。</small>
 </div>
 </section>
 
 <section class="page" id="ai">
 <h2>チャッピーに相談</h2>
 <div class="card">
-<p>今までの前提と最近の筋トレ記録をまとめて、ChatGPTで相談できるよ。</p>
-<textarea id="question" placeholder="例：今日のトレーニングを改善して"></textarea>
+<p>運動・身体記録をChatGPTで分析できます。</p>
+<textarea id="question" placeholder="例：今週のトレーニングを分析して"></textarea>
 <button class="wide" onclick="makePrompt()">相談文を作成・コピー</button>
-<textarea id="prepared" rows="7" placeholder="相談文が表示されます"></textarea>
-<button class="wide" onclick="window.open('https://chatgpt.com/','_blank')">ChatGPTを開く</button>
-<p><small>ChatGPTで「筋肉」プロジェクトのこの会話を選び、文章を貼り付けてね。</small></p>
+<textarea id="prepared" rows="10" placeholder="相談文が表示されます"></textarea>
+<button class="wide secondary" onclick="window.open('https://chatgpt.com/','_blank')">ChatGPTを開く</button>
 </div>
 </section>
 
@@ -123,150 +223,976 @@ nav button.on{background:#385680;color:white}
 </nav>
 
 <script>
-const KEY="mybody_training_v2";
+"use strict";
+
+const OLD_KEY="mybody_training_v2";
+const KEY="mybody_training_v3";
 const $=id=>document.getElementById(id);
-const date=(d=new Date())=>
- d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-const today=date();
 
-const plans=[
-{title:"上半身＋体幹",type:"筋トレ",items:["腕立て伏せ 8〜12回×3セット","膝つき腕立て 10回×2セット","プランク 30秒×3セット","デッドバグ 左右10回×2セット"]},
-{title:"下半身＋体幹",type:"筋トレ",items:["スクワット 15回×3セット","リバースランジ 左右10回×2セット","ヒップリフト 15回×3セット","サイドプランク 左右20秒×2セット"]},
-{title:"軽い運動・回復",type:"回復日",items:["室内足踏み 10分","ストレッチ 5分","姿勢チェック"]},
-{title:"全身トレーニング",type:"筋トレ",items:["スクワット 15回×3セット","腕立て伏せ 10回×3セット","バードドッグ 左右10回×2セット","クランチ 15回×2セット"]},
-{title:"軽い体幹・ストレッチ",type:"軽めの日",items:["デッドバグ 左右8回×2セット","バードドッグ 左右8回×2セット","ストレッチ 5分"]},
-{title:"全身トレーニング",type:"筋トレ",items:["ランジ 左右10回×2セット","腕立て伏せ 8回×3セット","ヒップリフト 15回×2セット","プランク 30秒×2セット"]},
-{title:"休息・リカバリー",type:"休息日",items:["疲労・痛みのチェック","軽いストレッチ（任意）"]}
-];
-const plan=plans[(new Date().getDay()+6)%7];
-
-let data;
-try{
- data=JSON.parse(localStorage.getItem(KEY))||{days:{}};
- if(!data.days||typeof data.days!=="object")data={days:{}};
-}catch(e){data={days:{}}}
-
-function entry(){
- if(!data.days[today])data.days[today]={checked:{},memo:"",effort:"",finished:false};
- return data.days[today];
+function date(d=new Date()){
+ const p=new Intl.DateTimeFormat("en-US",{
+  timeZone:"Asia/Tokyo",
+  year:"numeric",month:"2-digit",day:"2-digit"
+ }).formatToParts(d);
+ const get=t=>p.find(x=>x.type===t).value;
+ return `${get("year")}-${get("month")}-${get("day")}`;
 }
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+
+function utc(s){
+ const [y,m,d]=s.split("-").map(Number);
+ return new Date(Date.UTC(y,m-1,d));
+}
+
+function validDate(s){
+ return /^\d{4}-\d{2}-\d{2}$/.test(s)&&
+  !isNaN(utc(s).getTime())&&
+  utc(s).toISOString().slice(0,10)===s;
+}
+
+function addDays(s,n){
+ const d=utc(s);
+ d.setUTCDate(d.getUTCDate()+n);
+ return d.toISOString().slice(0,10);
+}
+
+function monday(s){
+ return addDays(s,-((utc(s).getUTCDay()+6)%7));
+}
+
+const today=date();
+const BASE="2026-10-26";
+
+const A={
+ title:"筋トレA",
+ type:"筋トレ",
+ items:[
+  {name:"腕立て伏せ",dose:"8〜15回",sets:3},
+  {name:"スクワット",dose:"12〜20回",sets:3},
+  {name:"パイクプッシュアップ",dose:"6〜12回",sets:2},
+  {name:"リバースクランチ",dose:"10〜15回",sets:3}
+ ]
+};
+
+const B={
+ title:"筋トレB",
+ type:"筋トレ",
+ items:[
+  {name:"リバーススノーエンジェル",dose:"12〜15回",sets:3},
+  {name:"リバースランジ",dose:"左右各10回",sets:3},
+  {name:"ナロープッシュアップ",dose:"6〜12回",sets:3},
+  {name:"プランク",dose:"30〜60秒",sets:3}
+ ]
+};
+
+const HIIT={
+ title:"縄跳びHIIT",
+ type:"縄跳び",
+ items:[
+  "前跳び","交差跳び","二重跳び","前跳び",
+  "交差跳び","二重跳び","前跳び","バーピージャンプ"
+ ].map(name=>({name,dose:"50秒",sets:1}))
+};
+
+const THURSDAY={
+ title:"軽い体幹・ストレッチ",
+ type:"回復",
+ items:[
+  {name:"デッドバグ",dose:"左右各8回",sets:2},
+  {name:"バードドッグ",dose:"左右各8回",sets:2},
+  {name:"ストレッチ",dose:"5分",sets:1}
+ ]
+};
+
+const SUNDAY={
+ title:"軽い散歩・ストレッチ",
+ type:"回復",
+ items:[
+  {name:"軽い散歩",dose:"20〜30分",sets:1},
+  {name:"全身ストレッチ",dose:"5〜10分",sets:1}
+ ]
+};
+
+function weekIndex(s){
+ return Math.round((utc(monday(s))-utc(BASE))/604800000);
+}
+
+function isAlternate(s){
+ return ((weekIndex(s)%2)+2)%2===1;
+}
+
+function planFor(s){
+ const day=(utc(s).getUTCDay()+6)%7;
+ const reverse=isAlternate(s);
+ return [
+  reverse?B:A,
+  HIIT,
+  reverse?A:B,
+  THURSDAY,
+  reverse?B:A,
+  HIIT,
+  SUNDAY
+ ][day];
+}
+
+function blank(){
+ return {
+  checked:{},
+  memo:"",
+  effort:"",
+  finished:null,
+  fullRest:false
+ };
+}
+
+function normalize(obj){
+ if(!obj||typeof obj!=="object"||
+    !obj.days||typeof obj.days!=="object"||
+    Array.isArray(obj.days))
+  throw Error("データ形式が不正です");
+ const days={};
+ for(const [d,e] of Object.entries(obj.days)){
+  if(!validDate(d)||!e||typeof e!=="object"||Array.isArray(e))
+   throw Error("不正な記録："+d);
+  days[d]={
+   ...blank(),
+   ...e,
+   checked:e.checked&&typeof e.checked==="object"?
+    {...e.checked}:{}
+  };
+ }
+ return {schemaVersion:3,days};
+}
+
+let data={schemaVersion:3,days:{}};
+let available=false;
+let selected=today;
+let checked={};
+let reps={};
+let editing=false;
+
+function notice(text,kind=""){
+ const el=$("storageStatus");
+ el.className="status "+kind;
+ el.textContent=text;
+}
+
+function storageWrite(next){
+ if(!available)throw Error("保存領域が利用できません");
+ const text=JSON.stringify(next);
+ localStorage.setItem(KEY,text);
+ if(localStorage.getItem(KEY)!==text)
+  throw Error("保存後の読み戻しに失敗");
+ data=next;
+ notice("保存確認済み：保存内容を読み戻して照合しました。","success");
+}
+
+function init(){
+ try{
+  const probe="mybody_test_"+Date.now();
+  localStorage.setItem(probe,"test");
+  if(localStorage.getItem(probe)!=="test")
+   throw Error("保存APIを使用できません");
+  localStorage.removeItem(probe);
+
+  const v3=localStorage.getItem(KEY);
+  const v2=localStorage.getItem(OLD_KEY);
+  const current=v3?normalize(JSON.parse(v3)):null;
+  const legacy=v2?normalize(JSON.parse(v2)):null;
+
+  available=true;
+
+  if(current){
+   data=current;
+   if(legacy){
+    const merged={
+     schemaVersion:3,
+     days:{...legacy.days,...current.days}
+    };
+    storageWrite(merged);
+   }
+  }else if(legacy){
+   storageWrite(legacy);
+  }else{
+   notice("保存領域を利用できます。まだ記録はありません。");
+  }
+ }catch(e){
+  available=false;
+  notice("保存・読込エラー："+e.message,"error");
+ }
+}
+
 function tab(id){
- document.querySelectorAll(".page").forEach(x=>x.classList.toggle("on",x.id===id));
+ document.querySelectorAll(".page").forEach(p=>
+  p.classList.toggle("on",p.id===id));
  const ids=["home","train","records","ai"];
- document.querySelectorAll("nav button").forEach((b,i)=>b.classList.toggle("on",ids[i]===id));
+ document.querySelectorAll("nav button").forEach((b,i)=>
+  b.classList.toggle("on",ids[i]===id));
+ if(id!=="train")pauseTimer();
+ if(id==="records")renderRecords();
  window.scrollTo(0,0);
 }
-function toggle(i,value){
- entry().checked[i]=value;
- save();
-}
-function complete(){
- const e=entry();
- e.memo=$("memo").value;
- e.effort=$("effort").value;
- e.finished=true;
- save();
- $("message").textContent="今日の記録を保存したよ！";
-}
-function render(){
- const e=entry();
- $("today").textContent=new Date().toLocaleDateString("ja-JP",{dateStyle:"full"});
- $("title").textContent=plan.title;
- $("type").textContent=plan.type;
- $("description").textContent=plan.type==="休息日"?"しっかり休んで筋肉を回復させよう。":"無理せずフォームを優先しよう。";
- const count=plan.items.filter((_,i)=>e.checked[i]).length;
- $("progress").textContent=count+" / "+plan.items.length+" 項目";
- $("fill").style.width=(count/plan.items.length*100)+"%";
- $("exercises").replaceChildren();
- plan.items.forEach((name,i)=>{
-  const label=document.createElement("label");
-  label.className="check";
-  const box=document.createElement("input");
-  box.type="checkbox";
-  box.checked=!!e.checked[i];
-  box.onchange=()=>toggle(i,box.checked);
-  label.append(box,document.createTextNode(name));
-  $("exercises").append(label);
- });
- $("memo").value=e.memo||"";
- $("effort").value=e.effort||"";
- const finished=Object.keys(data.days).filter(d=>data.days[d].finished);
- $("monthly").textContent=finished.filter(d=>d.slice(0,7)===today.slice(0,7)).length;
- const now=new Date();
- const monday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-(now.getDay()+6)%7);
- $("weekly").textContent=finished.filter(d=>d>=date(monday)&&d<=today).length;
 
- const first=new Date(now.getFullYear(),now.getMonth(),1);
- const days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
- $("calendar").replaceChildren();
- ["月","火","水","木","金","土","日"].forEach(s=>{
-  const el=document.createElement("div");el.className="day";el.textContent=s;$("calendar").append(el);
- });
- for(let i=0;i<(first.getDay()+6)%7;i++)$("calendar").append(document.createElement("div"));
- for(let i=1;i<=days;i++){
-  const d=date(new Date(now.getFullYear(),now.getMonth(),i));
-  const el=document.createElement("div");
-  el.className="day"+(data.days[d]?.finished?" done":"");
-  el.textContent=i;
-  $("calendar").append(el);
+function entry(d){
+ return data.days[d]||blank();
+}
+
+function numeric(id){
+ const raw=$(id).value.trim();
+ if(raw==="")return null;
+ const value=Number(raw);
+ if(!Number.isFinite(value)||value<0)
+  throw Error(id+"の入力値が不正です");
+ if(id==="sleepHours"&&value>24)
+  throw Error("睡眠時間は24時間以下にしてください");
+ if(id==="fatigue"&&value>10)
+  throw Error("疲労感は10以下にしてください");
+ return value;
+}
+
+function changeDate(d){
+ if(!validDate(d))return;
+ if(editing&&!confirm("未保存の変更を破棄して日付を変更しますか？")){
+  $("recordDate").value=selected;
+  return;
  }
- $("graph").replaceChildren();
- for(let i=6;i>=0;i--){
-  const d=new Date();d.setDate(d.getDate()-i);
-  const v=Object.values(data.days[date(d)]?.checked||{}).filter(Boolean).length;
-  const bar=document.createElement("div");
-  bar.style.height=Math.max(2,v*20)+"%";
-  bar.title=date(d)+"："+v+"項目";
-  $("graph").append(bar);
+ selected=d;
+ editing=false;
+ resetTimer();
+ renderEditor();
+}
+
+function changeRest(){
+ editing=true;
+ renderExercises();
+}
+
+function renderEditor(){
+ const e=entry(selected);
+ const p=planFor(selected);
+
+ $("recordDate").value=selected;
+ $("selectedPlan").textContent=selected+"： "+p.title;
+ $("restOption").style.display=p.type==="回復"?"flex":"none";
+ $("fullRest").checked=e.fullRest===true;
+ $("hiitPanel").style.display=p===HIIT?"block":"none";
+
+ checked=structuredClone(e.officialPlanId===p.title?
+  (e.setChecks||{}):{});
+ reps=structuredClone(e.officialPlanId===p.title?
+  (e.setReps||{}):{});
+
+ for(const id of ["weight","waist","sleepHours","fatigue"]){
+  $(id).value=e[id]===null||e[id]===undefined?"":e[id];
  }
- $("history").replaceChildren();
- finished.sort().reverse().slice(0,20).forEach(d=>{
-  const row=document.createElement("div");
-  row.className="item";
-  row.textContent=d+"：活動完了";
-  $("history").append(row);
+
+ $("memo").value=e.memo??"";
+ $("effort").value=e.effort??"";
+ $("finished").checked=e.finished===true;
+ $("message").textContent="編集内容は保存ボタンを押すまで未保存です。";
+ editing=false;
+ renderExercises();
+}
+
+function renderExercises(){
+ const p=planFor(selected);
+ const root=$("exercises");
+ root.replaceChildren();
+
+ if(p.type==="回復"&&$("fullRest").checked){
+  root.textContent="完全休養を選択中です。疲労回復を優先してください。";
+  return;
+ }
+
+ p.items.forEach((item,i)=>{
+  const section=document.createElement("div");
+  section.className="exercise";
+
+  const title=document.createElement("b");
+  title.textContent=(i+1)+". "+item.name+
+   "： "+item.dose+"×"+item.sets+"セット";
+  section.append(title);
+
+  const sets=document.createElement("div");
+  sets.className="sets";
+
+  for(let j=0;j<item.sets;j++){
+   const line=document.createElement("label");
+   line.className="setbox";
+
+   const box=document.createElement("input");
+   box.type="checkbox";
+   box.checked=checked[i]?.[j]===true;
+   box.onchange=()=>{
+    if(!checked[i])checked[i]=[];
+    checked[i][j]=box.checked;
+    editing=true;
+   };
+
+   const text=document.createElement("span");
+   text.textContent="セット"+(j+1);
+
+   const value=document.createElement("input");
+   value.type="number";
+   value.min=0;
+   value.step=1;
+   value.placeholder=p===HIIT?"秒数":
+    item.dose.includes("秒")?"秒数":
+    item.dose.includes("分")?"分数":"回数";
+   value.style.width="85px";
+   value.value=reps[i]?.[j]??"";
+   value.oninput=()=>{
+    if(!reps[i])reps[i]=[];
+    reps[i][j]=value.value===""?null:Number(value.value);
+    editing=true;
+   };
+
+   line.append(box,text,value);
+   sets.append(line);
+  }
+  section.append(sets);
+  root.append(section);
  });
 }
-function backup(){
- const text=JSON.stringify(data);
- $("backupdata").value=text;
- navigator.clipboard?.writeText(text).then(()=>alert("コピーしたよ")).catch(()=>alert("欄の文章を長押ししてコピーしてね"));
-}
-function restore(){
+
+function saveRecord(){
  try{
-  const d=JSON.parse($("backupdata").value);
-  if(!d.days||typeof d.days!=="object")throw Error();
-  if(!confirm("現在の記録を上書きする？"))return;
-  data=d;save();alert("復元したよ");
- }catch(e){alert("データを確認してね")}
+  if(!available)throw Error("保存領域が利用できません");
+
+  const p=planFor(selected);
+  const e={...entry(selected)};
+  const rest=p.type==="回復"&&$("fullRest").checked;
+
+  e.memo=$("memo").value;
+  e.effort=$("effort").value;
+  e.finished=$("finished").checked;
+  e.fullRest=rest;
+
+  for(const id of ["weight","waist","sleepHours","fatigue"]){
+   e[id]=numeric(id);
+  }
+
+  if(!e.officialPlanId&&Object.keys(e.checked||{}).length){
+   e.legacyChecked=e.legacyChecked||{...e.checked};
+  }
+
+  e.officialPlanId=p.title;
+  e.planSnapshot={
+   title:p.title,
+   items:p.items.map(x=>x.name+" "+x.dose+"×"+x.sets+"セット")
+  };
+
+  if(!rest){
+   for(const values of Object.values(reps)){
+    for(const n of values){
+     if(n!==null&&n!==undefined&&
+        (!Number.isFinite(n)||n<0))
+      throw Error("セット実績に不正な値があります");
+    }
+   }
+   e.setChecks=checked;
+   e.setReps=reps;
+   e.checked=Object.fromEntries(
+    Object.entries(checked).map(([k,v])=>[k,v.every(Boolean)])
+   );
+  }else{
+   e.setChecks={};
+   e.setReps={};
+   e.checked={};
+  }
+
+  e.updatedAt=new Date().toISOString();
+
+  const next={
+   ...data,
+   days:{...data.days,[selected]:e}
+  };
+
+  storageWrite(next);
+  editing=false;
+  $("message").textContent="保存・読み戻し確認済み";
+  renderHome();
+  renderRecords();
+ }catch(e){
+  $("message").textContent="保存失敗："+e.message;
+  notice("保存エラー："+e.message,"error");
+ }
 }
-function makePrompt(){
- const recent=Object.keys(data.days).sort().reverse().slice(0,14).map(d=>{
-  const e=data.days[d];
-  return d+"："+(e.finished?"完了":"未完了")+"、達成"+Object.values(e.checked||{}).filter(Boolean).length+"項目、きつさ："+(e.effort||"未記録")+"、メモ："+(e.memo||"なし");
- }).join("\n");
- const q=$("question").value.trim()||"今の筋トレメニューを改善して";
- const text=`筋肉プロジェクトの相談です。
-【基本情報】
-21歳男性、身長169cm、以前の体重68kg。
-目標：腹筋が見える引き締まった体。
-食事制限・カロリー管理はしない。
-自宅室内、器具なし。
-毎日何かしら活動するが、回復日も取り入れる。
-【今日のメニュー】
-${plan.title}
-${plan.items.join("、")}
+
+function renderHome(){
+ const p=planFor(today);
+ const e=entry(today);
+
+ $("today").textContent=new Intl.DateTimeFormat("ja-JP",{
+  timeZone:"Asia/Tokyo",dateStyle:"full"
+ }).format(new Date());
+
+ $("type").textContent=p.type;
+ $("title").textContent=p.title;
+
+ $("description").textContent=p.type==="回復"?
+  "疲労が強い場合は完全休養も選択できます。":
+  p===HIIT?"50秒×8セット＋休憩10秒×7回。合計7分50秒。":
+  "フォームを意識して各セットを記録しましょう。";
+
+ const total=p.items.reduce((a,x)=>a+x.sets,0);
+ const count=e.officialPlanId===p.title?
+  Object.values(e.setChecks||{}).flat().filter(Boolean).length:0;
+
+ $("progress").textContent=e.fullRest?
+  "完全休養":count+" / "+total+" セット";
+ $("fill").style.width=Math.min(100,count/total*100)+"%";
+
+ const completed=Object.keys(data.days).filter(
+  d=>data.days[d].finished===true
+ );
+
+ $("weekly").textContent=completed.filter(
+  d=>d>=monday(today)&&d<=today
+ ).length;
+
+ $("monthly").textContent=completed.filter(
+  d=>d.slice(0,7)===today.slice(0,7)
+ ).length;
+
+ $("weekType").textContent=isAlternate(today)?
+  "今週：B → A → B":"今週：A → B → A";
+
+ const schedule=$("schedule");
+ schedule.replaceChildren();
+
+ ["月","火","水","木","金","土","日"].forEach((label,i)=>{
+  const d=addDays(monday(today),i);
+  const line=document.createElement("div");
+  line.className="item";
+  line.textContent=label+"： "+planFor(d).title+
+   (data.days[d]?.finished===true?" ✓":"");
+  schedule.append(line);
+ });
+}
+
+function average(days,key){
+ const values=days.map(d=>data.days[d]?.[key]).filter(
+  n=>typeof n==="number"&&Number.isFinite(n)
+ );
+ if(!values.length)return null;
+ return {
+  value:values.reduce((a,b)=>a+b,0)/values.length,
+  count:values.length
+ };
+}
+
+function renderRecords(){
+ const cal=$("calendar");
+ cal.replaceChildren();
+
+ ["月","火","水","木","金","土","日"].forEach(t=>{
+  const el=document.createElement("div");
+  el.className="day";
+  el.textContent=t;
+  cal.append(el);
+ });
+
+ const [y,m]=today.split("-").map(Number);
+ const first=`${y}-${String(m).padStart(2,"0")}-01`;
+ const offset=(utc(first).getUTCDay()+6)%7;
+
+ for(let i=0;i<offset;i++)
+  cal.append(document.createElement("div"));
+
+ const last=new Date(Date.UTC(y,m,0)).getUTCDate();
+
+ for(let i=1;i<=last;i++){
+  const d=`${y}-${String(m).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
+  const p=planFor(d);
+  const cell=document.createElement("button");
+  cell.className="day"+
+   (data.days[d]?.finished===true?" done":"")+
+   (d===selected?" current":"");
+  cell.style.color="white";
+  cell.style.padding="7px 2px";
+  cell.textContent=i+"\n"+(
+   p.type==="筋トレ"?"筋":p.type==="縄跳び"?"縄":"回"
+  );
+  cell.onclick=()=>{
+   changeDate(d);
+   tab("train");
+  };
+  cal.append(cell);
+ }
+
+ const analysis=$("analysis");
+ analysis.replaceChildren();
+
+ function show(label,value){
+  const p=document.createElement("p");
+  p.textContent=label+"： "+value;
+  analysis.append(p);
+ }
+
+ const weekStart=monday(today);
+ const monthStart=today.slice(0,7)+"-01";
+
+ function rate(start,end,label){
+  let planned=0,done=0,unknown=0;
+  for(let d=start;d<=end;d=addDays(d,1)){
+   planned++;
+   if(data.days[d]?.finished===true)done++;
+   if(data.days[d]?.finished===null||
+      data.days[d]?.finished===undefined)unknown++;
+  }
+  show(label,
+   done+"/"+planned+"日（"+Math.round(done/planned*100)+
+   "%）・未記録"+unknown+"日");
+ }
+
+ rate(weekStart,today,"今週の達成率");
+ rate(monthStart,today,"今月の達成率");
+
+ for(const type of ["筋トレ","縄跳び"]){
+  const days=[];
+  for(let i=0;i<7;i++){
+   const d=addDays(weekStart,i);
+   if(d<=today&&planFor(d).type===type)days.push(d);
+  }
+  const count=days.filter(d=>data.days[d]?.finished===true).length;
+  show(type+"の達成率",
+   count+"/"+days.length+"日"+
+   (days.length?"（"+Math.round(count/days.length*100)+"%）":""));
+ }
+
+ const last7=Array.from({length:7},(_,i)=>addDays(today,i-6));
+ const prev7=last7.map(d=>addDays(d,-7));
+
+ for(const [key,label,unit] of [
+  ["weight","体重","kg"],
+  ["waist","ウエスト","cm"]
+ ]){
+  const now=average(last7,key);
+  const prev=average(prev7,key);
+  show(label+"7日平均",
+   now?now.value.toFixed(2)+unit+
+    "（"+now.count+"日記録）":"未記録");
+  show(label+"前週比",
+   now&&prev?(now.value-prev.value).toFixed(2)+unit:"未記録");
+ }
+
+ const history=$("history");
+ history.replaceChildren();
+
+ Object.keys(data.days).sort().reverse().slice(0,30).forEach(d=>{
+  const line=document.createElement("div");
+  line.className="item";
+
+  const button=document.createElement("button");
+  button.className="secondary";
+  button.textContent="編集";
+  button.style.float="right";
+  button.onclick=()=>{
+   changeDate(d);
+   tab("train");
+  };
+
+  line.append(
+   document.createTextNode(d+"： "+
+    (data.days[d].planSnapshot?.title||planFor(d).title)+
+    " / "+(data.days[d].finished===true?"完了":"未完了・未確認")),
+   button
+  );
+  history.append(line);
+ });
+
+ drawCharts();
+}
+
+function drawChart(id,points,unit){
+ const root=$(id);
+ root.replaceChildren();
+
+ if(!points.length){
+  root.textContent="未記録";
+  return;
+ }
+
+ const W=340,H=160,pad=26;
+ const values=points.map(p=>p.value);
+ const min=Math.min(...values);
+ const max=Math.max(...values);
+ const lo=min===max?min-1:min;
+ const hi=min===max?max+1:max;
+
+ const x=i=>pad+(W-pad*2)*(
+  points.length===1?0.5:i/(points.length-1)
+ );
+ const y=v=>H-pad-(v-lo)/(hi-lo)*(H-2*pad);
+
+ const ns="http://www.w3.org/2000/svg";
+ const svg=document.createElementNS(ns,"svg");
+ svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+
+ const line=document.createElementNS(ns,"polyline");
+ line.setAttribute("points",
+  points.map((p,i)=>x(i)+","+y(p.value)).join(" "));
+ line.setAttribute("fill","none");
+ line.setAttribute("stroke","#8aafff");
+ line.setAttribute("stroke-width","3");
+ svg.append(line);
+
+ points.forEach((p,i)=>{
+  const c=document.createElementNS(ns,"circle");
+  c.setAttribute("cx",x(i));
+  c.setAttribute("cy",y(p.value));
+  c.setAttribute("r","4");
+  c.setAttribute("fill","#b9d2ff");
+
+  const title=document.createElementNS(ns,"title");
+  title.textContent=p.date+"： "+p.value+unit;
+  c.append(title);
+  svg.append(c);
+ });
+
+ root.append(svg);
+
+ const description=document.createElement("p");
+ description.className="help";
+ description.textContent=points.length+"件の記録 / 最初 "+
+  points[0].value+unit+" → 最新 "+
+  points[points.length-1].value+unit;
+ root.append(description);
+}
+
+const strengthNames=[...A.items,...B.items].map(x=>x.name);
+
+function drawCharts(){
+ const dates=Object.keys(data.days).sort();
+
+ const weights=dates.filter(d=>
+  typeof data.days[d].weight==="number"
+ ).slice(-40).map(d=>({
+  date:d,value:data.days[d].weight
+ }));
+
+ drawChart("weightChart",weights,"kg");
+
+ const select=$("strengthSelect");
+ if(!select.options.length){
+  strengthNames.forEach(name=>{
+   const option=document.createElement("option");
+   option.value=name;
+   option.textContent=name;
+   select.append(option);
+  });
+ }
+
+ drawStrength();
+}
+
+function drawStrength(){
+ const name=$("strengthSelect").value;
+ const points=[];
+
+ for(const [d,e] of Object.entries(data.days).sort()){
+  const plan=e.officialPlanId==="筋トレA"?A:
+   e.officialPlanId==="筋トレB"?B:null;
+  if(!plan||!e.setReps)continue;
+
+  const index=plan.items.findIndex(x=>x.name===name);
+  if(index<0)continue;
+
+  const values=e.setReps[index];
+  if(!Array.isArray(values))continue;
+
+  const valid=values.filter(n=>
+   typeof n==="number"&&Number.isFinite(n)
+  );
+  if(!valid.length)continue;
+
+  points.push({
+   date:d,
+   value:valid.reduce((a,b)=>a+b,0)
+  });
+ }
+
+ drawChart("strengthChart",points.slice(-30),
+  name==="プランク"?"秒":"回");
+}
+
+// HIIT：50秒×8、休憩10秒×7＝470秒
+const stages=[];
+for(let i=0;i<8;i++){
+ stages.push({kind:"work",set:i+1,seconds:50});
+ if(i<7)stages.push({kind:"rest",set:i+1,seconds:10});
+}
+
+let timerIndex=0;
+let timerRemaining=50;
+let timerRunning=false;
+let timerHandle=null;
+let timerDeadline=0;
+
+function timeText(n){
+ return String(Math.floor(n/60)).padStart(2,"0")+":"+
+  String(n%60).padStart(2,"0");
+}
+
+function timerDisplay(){
+ const stage=stages[timerIndex];
+ const remaining=stages.slice(timerIndex+1)
+  .reduce((a,x)=>a+x.seconds,0)+timerRemaining;
+
+ $("timerClock").textContent=timeText(remaining);
+ $("timerStage").textContent=!stage?
+  "8セット終了":
+  stage.kind==="work"?
+  "セット"+stage.set+"/8："+HIIT.items[stage.set-1].name+
+  "（残り"+timerRemaining+"秒）":
+  "休憩（残り"+timerRemaining+"秒）";
+}
+
+function timerTick(){
+ if(!timerRunning)return;
+
+ let ms=timerDeadline-performance.now();
+
+ while(ms<=0){
+  timerIndex++;
+
+  if(timerIndex>=stages.length){
+   timerRunning=false;
+   clearInterval(timerHandle);
+   timerHandle=null;
+   timerRemaining=0;
+   timerDisplay();
+   $("timerStage").textContent=
+    "8セット終了。実績を確認して保存してください。";
+   return;
+  }
+
+  timerDeadline+=stages[timerIndex].seconds*1000;
+  ms=timerDeadline-performance.now();
+ }
+
+ timerRemaining=Math.ceil(ms/1000);
+ timerDisplay();
+}
+
+function startTimer(){
+ if(timerRunning)return;
+ if(timerIndex>=stages.length)resetTimer();
+
+ timerRunning=true;
+ timerDeadline=performance.now()+timerRemaining*1000;
+ timerHandle=setInterval(timerTick,100);
+ timerTick();
+}
+
+function pauseTimer(){
+ if(!timerRunning)return;
+ timerTick();
+ if(!timerRunning)return;
+ timerRunning=false;
+ clearInterval(timerHandle);
+ timerHandle=null;
+}
+
+function resetTimer(){
+ timerRunning=false;
+ clearInterval(timerHandle);
+ timerHandle=null;
+ timerIndex=0;
+ timerRemaining=50;
+ timerDisplay();
+}
+
+function backupObject(){
+ return {
+  format:"MYBODY_BACKUP",
+  schemaVersion:3,
+  exportedAt:new Date().toISOString(),
+  days:data.days
+ };
+}
+
+function downloadText(text,filename,mime){
+ const blob=new Blob([text],{type:mime});
+ const url=URL.createObjectURL(blob);
+ const link=document.createElement("a");
+
+ link.href=url;
+ link.download=filename;
+ document.body.append(link);
+ link.click();
+ link.remove();
+
+ setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
+function backup(){
+ downloadText(
+  JSON.stringify(backupObject(),null,2),
+  "mybody-backup-"+today+".json",
+  "application/json"
+ );
+ $("restoreMessage").textContent=
+  "バックアップのダウンロードを開始しました。保存先を確認してください。";
+}
+
+async function copyBackup(){
+ const text=JSON.stringify(backupObject(),null,2);
+ $("backupdata").value=text;
+
+ try{
+  if(!navigator.clipboard?.writeText)
+   throw Error("コピーAPIを利用できません");
+  await navigator.clipboard.writeText(text);
+  $("restoreMessage").textContent="JSONをコピーしました。";
+ }catch{
+  $("restoreMessage").textContent=
+   "自動コピーできません。表示されたJSONを手動でコピーしてください。";
+ }
+}
+
+function csvCell(v){
+ const text=v===null||v===undefined?"":String(v);
+ return '"'+text.replace(/"/g,'""')+'"';
+}
+
+function exportCSV(){
+ const columns=[
+  "date","plan","finished","weight","waist",
+  "sleepHours","fatigue","effort","memo",
+  "setChecks","setReps"
+ ];
+
+ const rows=[columns];
+
+ for(const [d,e] of Object.entries(data.days).sort()){
+  rows.push([
+   d,
+   e.planSnapshot?.title||"",
+   e.finished??"",
+   e.weight??"",
+   e.waist??"",
+   e.sleepHours??"",
+   e.fatigue??"",
+   e.effort??"",
+   e.memo??"",
+   JSON.stringify(e.setChecks||{}),
+   JSON.stringify(e.setReps||{})
+  ]);
+ }
+
+ const csv="\ufeff"+rows.map(r=>r.map(csvCell).join(",")).join("\r\n");
+
+ downloadText(
+  csv,"mybody-records-"+today+".csv","text/csv;charset=utf-8"
+ );
+ $("restoreMessage").textContent=
+  "CSVのダウンロードを開始しました。";
+}
+
+async function restore(){
+ try{
+  if(!available)throw Error("保存領域が利用できません");
+
+  const file=$("restoreFile").files[0];
+  const raw=file?await file.text():$("backupdata").value;
+
+  if(!raw.trim())throw Error("復元用JSONを指定してください");
+
+  const incoming=normalize(JSON.parse(raw));
+  const additions=Object.keys(incoming.days).filter(
+   d=>!Object.prototype.hasOwnProperty.call(data.days,d)
+  );
+
+  if(!additions.length){
+   $("restoreMessage").textContent=
+    "追加する日付はありません。既存記録は変更していません。";
+   return;
+  }
+
+  if(!confirm(additions.length+
+   "日分を追加します。既存の同一日付は保持します。続けますか？"))
+   return;
+
+  const merged={
+   ...data,
+   days:{...incoming.days,...data.days}
+  };
+
+  storageWrite(merged);
+  $("restoreMessage").textContent=
+   additions.length+"日分を復元しました。既存記録は保持しました。";
+
+  renderHome();
+  renderRecords();
+  renderEditor();
+ }catch(e){
+  $("restoreMessage").textContent="復元失敗："+e.message;
+  notice("復元エラー："+e.message,"error");
+ }
+}
+
+async function makePrompt(){
+ const recent=Object.keys(data.days).sort().reverse()
+  .slice(0,14).map(d=>{
+   const e=data.days[d];
+   return [
+    d,
+    "メニュー："+(e.planSnapshot?.title||"未記録"),
+    "完了："+(e.finished===true?"はい":"未確認"),
+    "体重："+(e.weight??"未記録"),
+    "ウエスト："+(e.waist??"未記録"),
+    "睡眠："+(e.sleepHours??"未記録"),
+    "疲労："+(e.fatigue??"未記録"),
+    "セット実績："+JSON.stringify(e.setReps||{}),
+    "きつさ："+(e.effort||"未記録"),
+    "メモ："+(e.memo||"未記録")
+   ].join("、");
+  }).join("\n");
+
+ const question=$("question").value.trim()||
+  "今週の運動と身体の変化を分析してください";
+
+ const text=`MY BODY 2.0の週間分析をお願いします。
+
+【目標】
+筋肉を維持・成長させながら体脂肪を減らし、腹筋が見える体を目指す。
+
 【最近の記録】
-${recent||"まだ記録なし"}
+${recent||"未記録"}
+
 【相談内容】
-${q}
-記録を踏まえて、現実的なアドバイスをお願いします。`;
+${question}
+
+体重7日平均と前週比、ウエスト変化、筋トレ・縄跳びの達成率、筋力向上、疲労・休養、翌週の改善策3つを分析してください。
+
+不足している数値は推測せず「未記録」としてください。`;
+
  $("prepared").value=text;
- navigator.clipboard?.writeText(text).then(()=>alert("コピーしたよ。この会話に貼り付けてね")).catch(()=>alert("文章を長押ししてコピーしてね"));
+
+ try{
+  if(!navigator.clipboard?.writeText)
+   throw Error("コピーできません");
+  await navigator.clipboard.writeText(text);
+  alert("相談文をコピーしました。");
+ }catch{
+  alert("相談文を表示しました。手動でコピーしてください。");
+ }
 }
-render();
+
+$("recordDate").addEventListener("change",e=>changeDate(e.target.value));
+
+document.querySelectorAll("#train input,#train textarea,#train select")
+.forEach(el=>{
+ el.addEventListener("input",()=>editing=true);
+});
+
+init();
+renderEditor();
+renderHome();
+renderRecords();
+resetTimer();
+
 </script>
 </body>
 </html>
-
