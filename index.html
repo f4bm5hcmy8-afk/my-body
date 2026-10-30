@@ -1,447 +1,272 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#111827">
-<title>MY BODY</title>
+<meta name="theme-color" content="#101827">
+<title>MY BODY 2.0</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0e1524;color:#f3f6ff;font:15px -apple-system,BlinkMacSystemFont,sans-serif;padding:20px 15px 95px}
-h1{font-size:30px;margin:6px 0 20px}
-h2{font-size:19px}
-small{color:#9caec9}
-.card{background:#1b2940;border:1px solid #30415b;border-radius:16px;padding:16px;margin:12px 0}
+body{margin:0;background:#0c1424;color:#f2f6ff;font:15px -apple-system,sans-serif;padding:18px 15px 95px}
+h1{font-size:30px;margin:8px 0}
+h2{font-size:20px}
+small,.muted{color:#a9b9d1}
+.card{background:#1a2940;border:1px solid #344561;border-radius:16px;padding:16px;margin:13px 0}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grid .card{margin:0}
-strong{font-size:25px}
-input,textarea{width:100%;background:#101c30;border:1px solid #52637b;border-radius:10px;color:white;font-size:16px;padding:12px;margin:5px 0}
-button{background:#8eb2ff;border:0;border-radius:10px;padding:12px;color:#101827;font-weight:bold;cursor:pointer}
-.full{width:100%;margin-top:8px}
-.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.item{border-bottom:1px solid #384962;padding:12px 0}
-.item button{padding:7px}
-.check{display:flex;gap:10px;align-items:center;padding:10px 0}
-.check input{width:22px;height:22px}
-.bar{height:9px;background:#35465f;border-radius:8px;overflow:hidden}
-#fill{height:100%;background:#8eb2ff;width:0}
+.big{font-size:30px;font-weight:bold}
+button{border:0;border-radius:10px;padding:12px;background:#8aafff;color:#101827;font-weight:bold}
+.wide{width:100%;margin-top:10px}
+input,textarea,select{background:#101b30;color:white;border:1px solid #4c6081;border-radius:10px;padding:12px;width:100%;font-size:16px;margin:6px 0}
+input[type=checkbox]{width:22px;height:22px;margin:0}
+.check{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #344561}
 .page{display:none}
-.page.active{display:block}
-nav{position:fixed;bottom:0;left:0;right:0;background:#18253a;display:flex;justify-content:space-around;padding:12px 2px 25px}
-nav button{background:transparent;color:#b9c9e6;font-size:12px;padding:8px 4px}
-nav button.active{color:#fff;background:#34517b}
-a{color:#aaccff}
+.page.on{display:block}
+nav{position:fixed;bottom:0;left:0;right:0;background:#17253c;display:flex;justify-content:space-around;padding:12px 2px 24px}
+nav button{background:transparent;color:#b9c9df;font-size:12px;padding:9px}
+nav button.on{background:#385680;color:white}
+.bar{background:#36445d;height:10px;border-radius:8px;overflow:hidden}
+#fill{height:100%;background:#8aafff;width:0}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.day{background:#2b3d56;text-align:center;padding:10px 0;border-radius:8px;font-size:12px}
+.done{background:#32785c}
+.graph{height:130px;display:flex;align-items:end;gap:6px}
+.graph div{flex:1;background:#8aafff;border-radius:5px 5px 0 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.item{padding:10px 0;border-bottom:1px solid #344561}
 </style>
 </head>
 <body>
-<small>PERSONAL FITNESS TRACKER</small>
-<h1>MY BODY.</h1>
+<small>PERSONAL TRAINING TRACKER</small>
+<h1>MY BODY 2.0</h1>
 <small id="today"></small>
 
-<section id="home" class="page active">
-<h2>今日の記録</h2>
+<section class="page on" id="home">
+<h2>今日のトレーニング</h2>
 <div class="card">
-<div class="row"><b>摂取カロリー</b><small>2100 kcal目標</small></div>
-<p><strong id="total">0</strong> kcal</p>
+<small id="type"></small>
+<h2 id="title"></h2>
+<p id="description" class="muted"></p>
+<p id="progress"></p>
 <div class="bar"><div id="fill"></div></div>
-<p id="remain"></p>
+<button class="wide" onclick="tab('train')">トレーニングを始める</button>
 </div>
 <div class="grid">
-<div class="card">タンパク質<br><strong id="p">0</strong>g<br><small>目標140g</small></div>
-<div class="card">脂質<br><strong id="f">0</strong>g<br><small>目標60g</small></div>
-<div class="card">炭水化物<br><strong id="c">0</strong>g<br><small>目標250g</small></div>
-<div class="card">現在体重<br><strong id="w">--</strong><br><small>目標64〜65kg</small></div>
+<div class="card">今週の運動日数<div class="big" id="weekly">0</div></div>
+<div class="card">今月の運動日数<div class="big" id="monthly">0</div></div>
 </div>
 <div class="card">
-<b>3か月の目標</b>
-<p>68kgから64〜65kgを目指す。筋肉を維持・増強しながら体脂肪を落とす。</p>
+<b>目標</b>
+<p>腹筋が見える引き締まった体を目指す。</p>
+<small>器具なし・室内トレーニング。食事制限なし。毎日運動または回復を行う。</small>
 </div>
 </section>
 
-<section id="food" class="page">
-<h2>食事記録</h2>
-<div class="card">
-<input id="foodname" placeholder="食品名">
-<input id="energy" type="number" placeholder="カロリー kcal">
-<input id="protein" type="number" placeholder="タンパク質 g">
-<input id="fat" type="number" placeholder="脂質 g">
-<input id="carb" type="number" placeholder="炭水化物 g">
-<button class="full" onclick="addFood()">食事を追加</button>
-<small>栄養成分は食品表示などを参考に入力</small>
-</div>
-<div class="card" id="foodlist"></div>
-</section>
-
-<section id="train" class="page">
-<h2>室内トレーニング</h2>
-<small>器具なし。無理せずフォーム優先。</small>
-<div class="card" id="training"></div>
+<section class="page" id="train">
+<h2>今日のメニュー</h2>
+<div class="card" id="exercises"></div>
 <div class="card">
 <b>トレーニングメモ</b>
-<textarea id="memo" rows="4" placeholder="回数、セット数、感想など"></textarea>
-<button class="full" onclick="saveMemo()">メモを保存</button>
+<textarea id="memo" placeholder="回数・セット数・体調など"></textarea>
+<select id="effort">
+<option value="">きつさを選択</option>
+<option>楽</option>
+<option>普通</option>
+<option>きつい</option>
+</select>
+<button class="wide" onclick="complete()">今日の活動を記録</button>
+<p id="message"></p>
 </div>
 </section>
 
-<section id="records" class="page">
-<h2>体重・チェックリスト</h2>
+<section class="page" id="records">
+<h2>成長記録</h2>
 <div class="card">
-<input id="newweight" type="number" step="0.1" placeholder="体重 kg">
-<button class="full" onclick="addWeight()">体重を保存</button>
-<div id="weightlist"></div>
+<b>今月のカレンダー</b>
+<div class="calendar" id="calendar"></div>
+<p><small>緑色＝運動・回復を記録した日</small></p>
 </div>
-<div class="card" id="checklist"></div>
 <div class="card">
-<b>データのバックアップ</b>
-<p><small>記録はこのブラウザに保存されます。</small></p>
-<button class="full" onclick="backup()">バックアップをコピー</button>
-<textarea id="backuptext" rows="3" placeholder="復元用データをここに貼り付け"></textarea>
-<button class="full" onclick="restore()">貼り付けた記録を復元</button>
+<b>直近7日間の達成項目数</b>
+<div class="graph" id="graph"></div>
+</div>
+<div class="card">
+<b>活動履歴</b>
+<div id="history"></div>
+</div>
+<div class="card">
+<b>バックアップ</b>
+<button class="wide" onclick="backup()">記録をコピー</button>
+<textarea id="backupdata" placeholder="復元データを貼り付け"></textarea>
+<button class="wide" onclick="restore()">記録を復元</button>
 </div>
 </section>
 
-<section id="ai" class="page">
-<h2>AIトレーナー</h2>
+<section class="page" id="ai">
+<h2>チャッピーに相談</h2>
 <div class="card">
-<p>食事や筋トレ記録を添えて、ChatGPTに相談できます。</p>
-<textarea id="question" rows="4" placeholder="例：今日の食事を評価して"></textarea>
-<button class="full" onclick="askAI()">質問文をコピー</button>
-<button class="full" onclick="window.open('https://chatgpt.com/','_blank')">ChatGPTを開く</button>
-<small>追加のAPI料金は発生しません。ChatGPTの利用上限は契約プランに従います。</small>
+<p>今までの前提と最近の筋トレ記録をまとめて、ChatGPTで相談できるよ。</p>
+<textarea id="question" placeholder="例：今日のトレーニングを改善して"></textarea>
+<button class="wide" onclick="makePrompt()">相談文を作成・コピー</button>
+<textarea id="prepared" rows="7" placeholder="相談文が表示されます"></textarea>
+<button class="wide" onclick="window.open('https://chatgpt.com/','_blank')">ChatGPTを開く</button>
+<p><small>ChatGPTで「筋肉」プロジェクトのこの会話を選び、文章を貼り付けてね。</small></p>
 </div>
 </section>
 
 <nav>
-<button onclick="tab('home',this)" class="active">ホーム</button>
-<button onclick="tab('food',this)">食事</button>
-<button onclick="tab('train',this)">筋トレ</button>
-<button onclick="tab('records',this)">記録</button>
-<button onclick="tab('ai',this)">AI相談</button>
+<button class="on" onclick="tab('home')">ホーム</button>
+<button onclick="tab('train')">筋トレ</button>
+<button onclick="tab('records')">記録</button>
+<button onclick="tab('ai')">AI相談</button>
 </nav>
 
 <script>
-const KEY="mybody_data_v1";
-const day=()=>new Date().toLocaleDateString("sv-SE");
-const fresh=()=>({foods:[],weights:[],checks:{},memos:{}});
-let data;
-try{data=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){data=fresh()}
+const KEY="mybody_training_v2";
 const $=id=>document.getElementById(id);
-const num=id=>Number($(id).value)||0;
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
-function tab(id,btn){
-document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
-$(id).classList.add("active");
-document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
-btn.classList.add("active");
-}
-function addFood(){
-const name=$("foodname").value.trim();
-if(!name)return alert("食品名を入力してね");
-data.foods.push({id:Date.now(),date:day(),name,k:num("energy"),p:num("protein"),f:num("fat"),c:num("carb")});
-["foodname","energy","protein","fat","carb"].forEach(id=>$(id).value="");
-save();
-}
-function deleteFood(id){
-if(!confirm("この食事を削除する？"))return;
-data.foods=data.foods.filter(x=>x.id!==id);
-save();
-}
-function addWeight(){
-const w=num("newweight");
-if(w<20||w>300)return alert("体重を確認してね");
-data.weights.push({date:day(),w});
-$("newweight").value="";
-save();
-}
-const exercises=["スクワット 15回×3セット","腕立て伏せ 8〜12回×3セット","リバースランジ 左右10回×2セット","プランク 30秒×3セット","クランチ 15回×3セット"];
-const checklist=["体重を測る","食事を記録する","タンパク質を意識する","運動・活動を行う","十分に睡眠をとる"];
-function checkKey(type,i){return day()+"_"+type+"_"+i}
-function toggle(type,i,on){
-data.checks[checkKey(type,i)]=on;save();
-}
-function saveMemo(){
-data.memos[day()]=$("memo").value;
-save();alert("保存したよ");
-}
-function backup(){
-const str=JSON.stringify(data);
-$("backuptext").value=str;
-navigator.clipboard.writeText(str).then(()=>alert("バックアップをコピーしたよ")).catch(()=>alert("下の文字を長押ししてコピーしてね"));
-}
-function restore(){
+const date=(d=new Date())=>
+ d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const today=date();
+
+const plans=[
+{title:"上半身＋体幹",type:"筋トレ",items:["腕立て伏せ 8〜12回×3セット","膝つき腕立て 10回×2セット","プランク 30秒×3セット","デッドバグ 左右10回×2セット"]},
+{title:"下半身＋体幹",type:"筋トレ",items:["スクワット 15回×3セット","リバースランジ 左右10回×2セット","ヒップリフト 15回×3セット","サイドプランク 左右20秒×2セット"]},
+{title:"軽い運動・回復",type:"回復日",items:["室内足踏み 10分","ストレッチ 5分","姿勢チェック"]},
+{title:"全身トレーニング",type:"筋トレ",items:["スクワット 15回×3セット","腕立て伏せ 10回×3セット","バードドッグ 左右10回×2セット","クランチ 15回×2セット"]},
+{title:"軽い体幹・ストレッチ",type:"軽めの日",items:["デッドバグ 左右8回×2セット","バードドッグ 左右8回×2セット","ストレッチ 5分"]},
+{title:"全身トレーニング",type:"筋トレ",items:["ランジ 左右10回×2セット","腕立て伏せ 8回×3セット","ヒップリフト 15回×2セット","プランク 30秒×2セット"]},
+{title:"休息・リカバリー",type:"休息日",items:["疲労・痛みのチェック","軽いストレッチ（任意）"]}
+];
+const plan=plans[(new Date().getDay()+6)%7];
+
+let data;
 try{
-let v=JSON.parse($("backuptext").value);
-if(!Array.isArray(v.foods)||!Array.isArray(v.weights)||typeof v.checks!=="object"||!v.checks||typeof v.memos!=="object"||!v.memos||Array.isArray(v.checks)||Array.isArray(v.memos))throw Error();
-if(!confirm("今の記録を上書きする？"))return;
-data=v;save();alert("復元したよ");
-}catch(e){alert("バックアップデータを確認してね")}
+ data=JSON.parse(localStorage.getItem(KEY))||{days:{}};
+ if(!data.days||typeof data.days!=="object")data={days:{}};
+}catch(e){data={days:{}}}
+
+function entry(){
+ if(!data.days[today])data.days[today]={checked:{},memo:"",effort:"",finished:false};
+ return data.days[today];
 }
-function askAI(){
-const f=data.foods.filter(x=>x.date===day());
-const sum=key=>f.reduce((a,x)=>a+(Number(x[key])||0),0);
-const latest=data.weights.at(-1);
-const q=$("question").value.trim()||"今日の食事と筋トレについてアドバイスして";
-const msg=`私は21歳男性、身長169cm、開始体重68kg。目標は3か月で64〜65kg、腹筋の見える体。室内・器具なし筋トレをしています。1日の目標は2100kcal、P140g、F60g、C250gです。
-本日の摂取量：${sum("k")}kcal、P${sum("p")}g、F${sum("f")}g、C${sum("c")}g。
-食事：${f.map(x=>x.name).join("、")||"未記録"}
-最新体重：${latest?latest.w+"kg":"未記録"}
-筋トレメモ：${data.memos[day()]||"なし"}
-質問：${q}`;
-$("question").value=msg;
-navigator.clipboard.writeText(msg).then(()=>alert("コピーしたよ。ChatGPTに貼り付けてね")).catch(()=>alert("文章を長押ししてコピーしてね"));
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function tab(id){
+ document.querySelectorAll(".page").forEach(x=>x.classList.toggle("on",x.id===id));
+ const ids=["home","train","records","ai"];
+ document.querySelectorAll("nav button").forEach((b,i)=>b.classList.toggle("on",ids[i]===id));
+ window.scrollTo(0,0);
+}
+function toggle(i,value){
+ entry().checked[i]=value;
+ save();
+}
+function complete(){
+ const e=entry();
+ e.memo=$("memo").value;
+ e.effort=$("effort").value;
+ e.finished=true;
+ save();
+ $("message").textContent="今日の記録を保存したよ！";
 }
 function render(){
-$("today").textContent=new Date().toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric",weekday:"long"});
-const foods=data.foods.filter(x=>x.date===day());
-const sum=k=>foods.reduce((a,x)=>a+(Number(x[k])||0),0);
-const k=sum("k");
-$("total").textContent=Math.round(k);
-$("p").textContent=Math.round(sum("p"));
-$("f").textContent=Math.round(sum("f"));
-$("c").textContent=Math.round(sum("c"));
-$("remain").textContent=k<=2100?"残り "+Math.round(2100-k)+" kcal":"目標を "+Math.round(k-2100)+" kcal 超過";
-$("fill").style.width=Math.min(100,k/2100*100)+"%";
-$("w").textContent=data.weights.length?data.weights.at(-1).w+"kg":"--";
-$("foodlist").innerHTML="<b>今日の食事</b>"+(foods.length?foods.map(x=>`<div class="item row"><span>${escapeHTML(x.name)}<br><small>${x.k}kcal / P${x.p} F${x.f} C${x.c}</small></span><button onclick="deleteFood(${x.id})">削除</button></div>`).join(""):"<p>まだ記録がありません</p>");
-$("training").innerHTML=exercises.map((x,i)=>`<label class="check"><input type="checkbox" ${data.checks[checkKey("ex",i)]?"checked":""} onchange="toggle('ex',${i},this.checked)">${x}</label>`).join("");
-$("checklist").innerHTML="<b>今日のチェック</b>"+checklist.map((x,i)=>`<label class="check"><input type="checkbox" ${data.checks[checkKey("daily",i)]?"checked":""} onchange="toggle('daily',${i},this.checked)">${x}</label>`).join("");
-$("weightlist").innerHTML=data.weights.slice(-7).reverse().map(x=>`<div class="item">${x.date}：${x.w}kg</div>`).join("");
-$("memo").value=data.memos[day()]||"";
+ const e=entry();
+ $("today").textContent=new Date().toLocaleDateString("ja-JP",{dateStyle:"full"});
+ $("title").textContent=plan.title;
+ $("type").textContent=plan.type;
+ $("description").textContent=plan.type==="休息日"?"しっかり休んで筋肉を回復させよう。":"無理せずフォームを優先しよう。";
+ const count=plan.items.filter((_,i)=>e.checked[i]).length;
+ $("progress").textContent=count+" / "+plan.items.length+" 項目";
+ $("fill").style.width=(count/plan.items.length*100)+"%";
+ $("exercises").replaceChildren();
+ plan.items.forEach((name,i)=>{
+  const label=document.createElement("label");
+  label.className="check";
+  const box=document.createElement("input");
+  box.type="checkbox";
+  box.checked=!!e.checked[i];
+  box.onchange=()=>toggle(i,box.checked);
+  label.append(box,document.createTextNode(name));
+  $("exercises").append(label);
+ });
+ $("memo").value=e.memo||"";
+ $("effort").value=e.effort||"";
+ const finished=Object.keys(data.days).filter(d=>data.days[d].finished);
+ $("monthly").textContent=finished.filter(d=>d.slice(0,7)===today.slice(0,7)).length;
+ const now=new Date();
+ const monday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-(now.getDay()+6)%7);
+ $("weekly").textContent=finished.filter(d=>d>=date(monday)&&d<=today).length;
+
+ const first=new Date(now.getFullYear(),now.getMonth(),1);
+ const days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+ $("calendar").replaceChildren();
+ ["月","火","水","木","金","土","日"].forEach(s=>{
+  const el=document.createElement("div");el.className="day";el.textContent=s;$("calendar").append(el);
+ });
+ for(let i=0;i<(first.getDay()+6)%7;i++)$("calendar").append(document.createElement("div"));
+ for(let i=1;i<=days;i++){
+  const d=date(new Date(now.getFullYear(),now.getMonth(),i));
+  const el=document.createElement("div");
+  el.className="day"+(data.days[d]?.finished?" done":"");
+  el.textContent=i;
+  $("calendar").append(el);
+ }
+ $("graph").replaceChildren();
+ for(let i=6;i>=0;i--){
+  const d=new Date();d.setDate(d.getDate()-i);
+  const v=Object.values(data.days[date(d)]?.checked||{}).filter(Boolean).length;
+  const bar=document.createElement("div");
+  bar.style.height=Math.max(2,v*20)+"%";
+  bar.title=date(d)+"："+v+"項目";
+  $("graph").append(bar);
+ }
+ $("history").replaceChildren();
+ finished.sort().reverse().slice(0,20).forEach(d=>{
+  const row=document.createElement("div");
+  row.className="item";
+  row.textContent=d+"：活動完了";
+  $("history").append(row);
+ });
 }
-function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function backup(){
+ const text=JSON.stringify(data);
+ $("backupdata").value=text;
+ navigator.clipboard?.writeText(text).then(()=>alert("コピーしたよ")).catch(()=>alert("欄の文章を長押ししてコピーしてね"));
+}
+function restore(){
+ try{
+  const d=JSON.parse($("backupdata").value);
+  if(!d.days||typeof d.days!=="object")throw Error();
+  if(!confirm("現在の記録を上書きする？"))return;
+  data=d;save();alert("復元したよ");
+ }catch(e){alert("データを確認してね")}
+}
+function makePrompt(){
+ const recent=Object.keys(data.days).sort().reverse().slice(0,14).map(d=>{
+  const e=data.days[d];
+  return d+"："+(e.finished?"完了":"未完了")+"、達成"+Object.values(e.checked||{}).filter(Boolean).length+"項目、きつさ："+(e.effort||"未記録")+"、メモ："+(e.memo||"なし");
+ }).join("\n");
+ const q=$("question").value.trim()||"今の筋トレメニューを改善して";
+ const text=`筋肉プロジェクトの相談です。
+【基本情報】
+21歳男性、身長169cm、以前の体重68kg。
+目標：腹筋が見える引き締まった体。
+食事制限・カロリー管理はしない。
+自宅室内、器具なし。
+毎日何かしら活動するが、回復日も取り入れる。
+【今日のメニュー】
+${plan.title}
+${plan.items.join("、")}
+【最近の記録】
+${recent||"まだ記録なし"}
+【相談内容】
+${q}
+記録を踏まえて、現実的なアドバイスをお願いします。`;
+ $("prepared").value=text;
+ navigator.clipboard?.writeText(text).then(()=>alert("コピーしたよ。この会話に貼り付けてね")).catch(()=>alert("文章を長押ししてコピーしてね"));
+}
 render();
 </script>
 </body>
-  
-<script>
-(function(){
-const foodPage=document.getElementById("food");
-if(!foodPage)return;
-
-const area=document.createElement("div");
-area.className="card";
-area.innerHTML=`
-<h2>食事の写真記録</h2>
-<p><small>写真を撮影、またはアルバムから選択</small></p>
-<input id="mealPhoto" type="file" accept="image/*">
-<div id="mealPhotos"></div>
-<p><small>写真はこの端末内に保存されます。</small></p>
-<button class="full" id="openFoodAI">
-写真をChatGPTで分析する
-</button>`;
-foodPage.insertBefore(area,foodPage.firstChild);
-
-let db;
-const req=indexedDB.open("MYBODY_Photos",1);
-req.onupgradeneeded=e=>{
-const d=e.target.result;
-if(!d.objectStoreNames.contains("photos"))
-d.createObjectStore("photos",{keyPath:"id"});
-};
-req.onsuccess=e=>{
-db=e.target.result;
-showPhotos();
-};
-req.onerror=()=>alert("写真保存機能を開けませんでした");
-
-document.getElementById("mealPhoto")
-.addEventListener("change",async e=>{
-const file=e.target.files[0];
-if(!file||!db)return;
-if(!file.type.startsWith("image/")){
-alert("画像ファイルを選択してね");
-return;
-}
-try{
-const img=await createImageBitmap(file);
-const ratio=Math.min(1,1200/Math.max(img.width,img.height));
-const canvas=document.createElement("canvas");
-canvas.width=Math.round(img.width*ratio);
-canvas.height=Math.round(img.height*ratio);
-canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
-img.close();
-const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.75));
-if(!blob)throw Error();
-const tx=db.transaction("photos","readwrite");
-tx.objectStore("photos").put({
-id:Date.now(),
-date:new Date().toLocaleDateString("sv-SE"),
-blob
-});
-tx.oncomplete=()=>showPhotos();
-tx.onerror=()=>alert("保存に失敗しました");
-e.target.value="";
-}catch(err){
-alert("写真を処理できませんでした");
-}
-});
-
-function showPhotos(){
-if(!db)return;
-const tx=db.transaction("photos","readonly");
-tx.objectStore("photos").getAll().onsuccess=e=>{
-const box=document.getElementById("mealPhotos");
-box.replaceChildren();
-e.target.result.reverse().forEach(item=>{
-const url=URL.createObjectURL(item.blob);
-const wrap=document.createElement("div");
-wrap.className="item";
-const img=document.createElement("img");
-img.src=url;
-img.style.cssText="width:100%;max-height:260px;object-fit:contain;border-radius:12px";
-img.onload=()=>URL.revokeObjectURL(url);
-const label=document.createElement("p");
-label.textContent=item.date;
-const del=document.createElement("button");
-del.textContent="この写真を削除";
-del.onclick=()=>{
-if(!confirm("写真を削除する？"))return;
-const t=db.transaction("photos","readwrite");
-t.objectStore("photos").delete(item.id);
-t.oncomplete=showPhotos;
-};
-wrap.append(img,label,del);
-box.append(wrap);
-});
-};
-}
-document.getElementById("openFoodAI").onclick=()=>{
-alert("ChatGPTが開いたら、＋ボタンから料理の写真を選んで送ってね。");
-window.open("https://chatgpt.com/","_blank");
-};
-})();
-</script>
-
-<script>
-(()=>{
-const $=id=>document.getElementById(id);
-const foods=[
-[['白米','ご飯','ごはん','米','ライス'],156,2.5,.3,37.1],
-[['鶏むね肉','胸肉','鶏胸肉'],105,23.3,1.9,0],
-[['鶏もも肉'],190,16.6,14.2,0],
-[['卵','たまご','玉子'],142,12.2,10.2,.4],
-[['バナナ'],93,1.1,.2,22.5],
-[['食パン'],248,8.9,4.1,46.4],
-[['納豆'],184,16.5,10,12.1],
-[['木綿豆腐','豆腐'],73,7,4.9,1.5],
-[['牛乳'],61,3.3,3.8,4.8],
-[['ブロッコリー'],37,5.4,.6,6.6],
-[['じゃがいも'],59,1.8,.1,17.3],
-[['鮭','サケ'],124,22.3,4.1,.1],
-[['ハラミ','牛ハラミ'],301,14.8,27.3,.3],
-[['りんご'],53,.1,.2,15.5]
-];
-const round=n=>Math.round(n*10)/10;
-
-function calculate(){
- const raw=$('foodname')?.value||'';
- const m=raw.match(/(\d+(?:\.\d+)?)\s*(?:g|ｇ|グラム)/i);
- const grams=m?Number(m[1]):null;
- const name=raw.replace(/\d+(?:\.\d+)?\s*(?:g|ｇ|グラム)/gi,'').replace(/[\s　]/g,'').toLowerCase();
- const item=foods.find(x=>x[0].some(a=>a.toLowerCase()===name));
- const info=$('autoFoodInfo');
- if(!item||!grams||grams<=0||grams>5000){
-  info.textContent='食品名と重量（例：米100g）を入力してください。';
-  return;
- }
- const vals=item.slice(1).map(v=>round(v*grams/100));
- ['energy','protein','fat','carb'].forEach((id,i)=>$(id).value=vals[i]);
- info.textContent=`概算：${vals[0]}kcal / P${vals[1]}g F${vals[2]}g C${vals[3]}g。確認して登録してください。`;
-}
-const input=$('foodname');
-if(input){
- const info=document.createElement('p');
- info.id='autoFoodInfo';
- info.style.cssText='font-size:12px;color:#b9c9e6';
- info.textContent='例：米100g、卵50g、鶏むね肉150g';
- input.insertAdjacentElement('afterend',info);
- input.addEventListener('input',calculate);
-}
-const page=$('food');
-if(!page)return;
-
-const panel=document.createElement('div');
-panel.className='card';
-panel.innerHTML=`
-<h2>写真AI推定（試験機能）</h2>
-<p><small>初回は約90MBのAIモデルを読み込みます。料理名の候補を表示し、栄養成分は仮の重量から概算します。</small></p>
-<input id="aiFoodPhoto" type="file" accept="image/*">
-<p id="aiFoodStatus">写真を選んでください。</p>
-<div id="aiFoodChoices"></div>`;
-page.insertBefore(panel,page.firstChild);
-
-const recipes={
-fried_rice:['チャーハン',180,4.5,5.5,28],
-omelette:['卵',142,12.2,10.2,.4],
-grilled_salmon:['鮭',124,22.3,4.1,.1],
-ramen:['ラーメン',95,4,3,13],
-pizza:['ピザ',250,11,10,29],
-hamburger:['ハンバーガー',260,13,11,29],
-sushi:['寿司',150,5,1,31],
-gyoza:['餃子',200,7,9,23],
-steak:['牛ステーキ',220,20,15,0],
-spaghetti_bolognese:['ミートソースパスタ',150,5,5,22],
-spaghetti_carbonara:['カルボナーラ',200,7,11,18],
-fried_chicken:['唐揚げ',280,16,18,12],
-chicken_curry:['チキンカレー',130,6,7,10],
-pancakes:['パンケーキ',230,6,6,40],
-caesar_salad:['シーザーサラダ',100,5,8,4],
-miso_soup:['味噌汁',35,2,1,4]
-};
-let classifier;
-
-$('aiFoodPhoto').addEventListener('change',async e=>{
- const file=e.target.files?.[0];
- if(!file)return;
- const status=$('aiFoodStatus');
- const choices=$('aiFoodChoices');
- choices.replaceChildren();
- status.textContent='画像AIを読み込み中。初回は通信量と時間がかかります。';
- let url;
- try{
-  if(!classifier){
-   const mod=await import(
-    'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3'
-   );
-   classifier=await mod.pipeline(
-    'image-classification',
-    'onnx-community/swin-finetuned-food101-ONNX',
-    {dtype:'q8'}
-   );
-  }
-  url=URL.createObjectURL(file);
-  status.textContent='写真を解析中…';
-  const result=await classifier(url,{top_k:3});
-  status.textContent='料理の候補を選び、重量と数値を確認してね。';
-  for(const item of result){
-   const key=item.label.toLowerCase().replaceAll(' ','_');
-   const recipe=recipes[key];
-   const btn=document.createElement('button');
-   btn.style.margin='4px';
-   btn.textContent=(recipe?recipe[0]:item.label.replaceAll('_',' '))+
-     ' ('+Math.round(item.score*100)+'%)';
-   btn.onclick=()=>{
-    $('foodname').value=recipe?recipe[0]+' 100g':item.label+' 100g';
-    if(recipe){
-     ['energy','protein','fat','carb'].forEach((id,i)=>{
-      $(id).value=recipe[i+1];
-     });
-     $('autoFoodInfo').textContent='写真の料理候補を100gと仮定した概算です。量・調理法に合わせて数値を修正してください。';
-    }else{
-     $('autoFoodInfo').textContent='この料理は栄養データ未登録です。数値を手入力してください。';
-    }
-   };
-   choices.appendChild(btn);
-  }
- }catch(err){
-  status.textContent='この端末では写真AIを起動できませんでした。文字入力での自動計算は利用できます。';
-  console.error(err);
- }finally{
-  if(url)URL.revokeObjectURL(url);
- }
-});
-})();
-</script>
-
 </html>
+
